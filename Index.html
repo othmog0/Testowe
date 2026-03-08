@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>I Tea Service - Business Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com"></script>
+    <style>
+        :root {
+            --primary: #0f172a; /* Deep Slate */
+            --accent: #3b82f6; /* Modern Blue */
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --skeleton: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background-color: var(--bg-body); color: var(--text-main);
+            margin: 0; display: flex; flex-direction: column; align-items: center; 
+            padding: 20px; min-height: 100vh;
+        }
+
+        /* Nagłówek Firmowy */
+        .brand-header { margin-bottom: 30px; text-align: center; }
+        .brand-name { 
+            font-size: 1.5rem; font-weight: 800; color: var(--primary); 
+            letter-spacing: -1px; text-transform: lowercase;
+        }
+        .brand-name span { color: var(--accent); }
+
+        .container { 
+            width: 100%; max-width: 600px; background: var(--bg-card);
+            border-radius: 16px; overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Pasek Postępu */
+        .loader-track { height: 4px; background: var(--border); width: 100%; }
+        .loader-fill { height: 100%; background: var(--accent); width: 0%; transition: width linear; }
+
+        /* Nawigacja z Ikonami */
+        .tab-nav { display: flex; background: #fff; border-bottom: 1px solid var(--border); }
+        .tab-btn { 
+            flex: 1; padding: 15px 5px; border: none; background: none;
+            color: var(--text-muted); font-weight: 600; cursor: pointer;
+            font-size: 0.75rem; transition: 0.3s; display: flex; flex-direction: column;
+            align-items: center; gap: 5px;
+        }
+        .tab-btn svg { width: 20px; height: 20px; stroke: currentColor; transition: 0.3s; }
+        .tab-btn.active { color: var(--accent); background: rgba(59, 130, 246, 0.03); }
+        .tab-btn.active svg { transform: translateY(-2px); }
+
+        /* Skeleton Loader */
+        .skeleton {
+            position: absolute; inset: 0; background: var(--bg-card);
+            z-index: 10; display: flex; flex-direction: column; padding: 20px;
+            animation: pulse 1.5s infinite;
+        }
+        .sk-media { width: 100%; height: 250px; background: var(--skeleton); border-radius: 8px; }
+        .sk-text { height: 20px; background: var(--skeleton); margin-top: 15px; border-radius: 4px; width: 60%; }
+        
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .tab-panel { display: none; position: relative; }
+        .tab-panel.active { display: block; animation: fadeIn 0.5s ease; }
+
+        .media-box { width: 100%; height: 300px; background: #000; overflow: hidden; }
+        .media-box img, .media-box iframe { width: 100%; height: 100%; border: none; object-fit: cover; }
+
+        .content { padding: 25px; }
+        .content h3 { margin: 0 0 10px 0; font-size: 1.2rem; color: var(--primary); }
+        .content p { margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; }
+
+        /* Stopka */
+        .footer { 
+            margin-top: 20px; padding: 15px; width: 100%; max-width: 600px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--text-muted);
+        }
+
+        .play-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 25px; border-radius: 8px; font-weight: 700;
+            cursor: pointer; transition: 0.3s; margin-top: 20px;
+        }
+        .play-btn.active { background: var(--accent); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="brand-header">
+        <div class="brand-name">i tea <span>service</span></div>
+    </div>
+
+    <div class="container" id="swipeArea">
+        <div id="skeleton" class="skeleton" style="display: none;">
+            <div class="sk-media"></div>
+            <div class="sk-text"></div>
+        </div>
+
+        <div class="loader-track"><div id="fill" class="loader-fill"></div></div>
+        
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="clickTab(0)">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                Global
+            </button>
+            <button class="tab-btn" onclick="clickTab(1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                Region
+            </button>
+            <button class="tab-btn" onclick="clickTab(2)">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                Kombornia
+            </button>
+        </div>
+
+        <div class="tab-panel active">
+            <div class="media-box"><img src="https://images.unsplash.com" onload="hideSkeleton()"></div>
+            <div class="content">
+                <h3>Analiza Skali: Australia</h3>
+                <p>Porównanie infrastruktury na poziomie kontynentalnym. Precyzyjne dane dla sektora IT i logistyki.</p>
+            </div>
+        </div>
+
+        <div class="tab-panel">
+            <div class="media-box"><img src="https://images.unsplash.com"></div>
+            <div class="content">
+                <h3>Rynek Europejski</h3>
+                <p>Optymalizacja usług w zagęszczonych strukturach miejskich UE. Strategia dostaw i serwisu.</p>
+            </div>
+        </div>
+
+        <div class="tab-panel">
+            <div class="media-box">
+                <iframe src="https://www.google.com"></iframe>
+            </div>
+            <div class="content">
+                <h3>Lokalny Punkt Dostępowy</h3>
+                <p>Wizualizacja terenu operacyjnego w Komborni. Najwyższa precyzja mapowania satelitarnego.</p>
+            </div>
+        </div>
+    </div>
+
+    <button id="mainBtn" class="play-btn" onclick="togglePlay()">URUCHOM PREZENTACJĘ</button>
+
+    <div class="footer">
+        <div>© 2024 i tea service</div>
+        <div>System v2.4 Active</div>
+    </div>
+
+    <script>
+        let current = 0;
+        let timer = null;
+        const speed = 5000;
+        const panels = document.querySelectorAll('.tab-panel');
+        const btns = document.querySelectorAll('.tab-btn');
+        const fill = document.getElementById('fill');
+        const skel = document.getElementById('skeleton');
+
+        function showTab(idx) {
+            if (idx < 0) idx = panels.length - 1;
+            if (idx >= panels.length) idx = 0;
+            
+            panels.forEach(p => p.classList.remove('active'));
+            btns.forEach(b => b.classList.remove('active'));
+            
+            panels[idx].classList.add('active');
+            btns[idx].classList.add('active');
+            current = idx;
+            if (timer) resetLoader();
+        }
+
+        function clickTab(idx) {
+            showSkeleton();
+            stopAuto();
+            showTab(idx);
+        }
+
+        function showSkeleton() {
+            skel.style.display = 'flex';
+            setTimeout(hideSkeleton, 600); // Automatyczne ukrycie po krótkim czasie
+        }
+
+        function hideSkeleton() {
+            skel.style.display = 'none';
+        }
+
+        const mc = new Hammer(document.getElementById('swipeArea'));
+        mc.on("swipeleft", () => { stopAuto(); showTab(current + 1); });
+        mc.on("swiperight", () => { stopAuto(); showTab(current - 1); });
+
+        function togglePlay() {
+            const b = document.getElementById('mainBtn');
+            if (timer) { stopAuto(); } 
+            else {
+                b.innerText = "ZATRZYMAJ"; b.classList.add('active');
+                resetLoader();
+                timer = setInterval(() => showTab(current + 1), speed);
+            }
+        }
+
+        function resetLoader() {
+            fill.style.transition = 'none'; fill.style.width = '0%';
+            setTimeout(() => { fill.style.transition = `width ${speed}ms linear`; fill.style.width = '100%'; }, 50);
+        }
+
+        function stopAuto() {
+            clearInterval(timer); timer = null;
+            fill.style.width = '0%'; fill.style.transition = 'none';
+            const b = document.getElementById('mainBtn');
+            b.innerText = "URUCHOM PREZENTACJĘ"; b.classList.remove('active');
+        }
+    </script>
+</body>
+</html>
